@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Products{% endblock %}
+
+{% block body %}
+    <h3 class="display-4">Products</h3>
+
+    <div class="w-100 p-3">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                {% if label == 'error' %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ message }}
+                    </div>
+                {% elseif label == 'success' %}
+                    <div class="alert alert-success" role="alert">
+                        {{ message }}
+                    </div>
+                {% else %}
+                    <div class="alert alert-secondary" role="alert">
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <a class="btn btn-primary" href="{{ path('product_new') }}">Create new product</a>
+    </div>
+
+    <table class="table table-hover table-bordered">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Created at</th>
+            <th>Updated at</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for product in products %}
+            <tr>
+                <td>{{ product.id }}</td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.description }}</td>
+                <td>{{ product.createdAt ? product.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ product.updatedAt ? product.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a class="btn btn-light" href="{{ path('product_show', {'id': product.id}) }}">Show product</a>
+                </td>
+                <td>
+                    <a class="btn btn-light" href="{{ path('product_edit', {'id': product.id}) }}">Edit product</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="7"> no records found </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
