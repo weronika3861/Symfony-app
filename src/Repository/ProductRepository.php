@@ -27,7 +27,7 @@ class ProductRepository extends ServiceEntityRepository
         $this->_em->flush();
     }
 
-    public function remove(Product $product): void
+    public function delete(Product $product): void
     {
         $this->_em->remove($product);
         $this->_em->flush();
