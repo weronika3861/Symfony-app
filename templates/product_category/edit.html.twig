@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit product category{% endblock %}
+
+{% block body %}
+    <h3 class="display-4">Edit product category</h3>
+
+    <div class="col-md-4 mb-3">
+        {{ include('product_category/_form.html.twig', {'button_label': 'Update'}) }}
+    </div>
+
+    <div class="col-md-4 mb-3">
+        {{ include('product_category/_delete_form.html.twig') }}
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <a class="btn btn-primary" href="{{ path('product_category_index') }}">List of product categories</a>
+    </div>
+{% endblock %}

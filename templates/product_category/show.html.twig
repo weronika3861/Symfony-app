@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Product category{% endblock %}
+
+{% block body %}
+    <h3 class="display-4">Product category</h3>
+
+    <div class="col-md-4 mb-3">
+        <a class="btn btn-primary" href="{{ path('product_category_index') }}">List of product categories</a>
+    </div>
+    <div class="col-md-4 mb-3">
+        <a class="btn btn-primary" href="{{ path('product_category_edit', {'id': product_category.id}) }}">Edit product category</a>
+    </div>
+    <div class="col-md-4 mb-3">
+        {{ include('product_category/_delete_form.html.twig') }}
+    </div>
+
+    <table class="table table-striped table-bordered">
+        <tbody>
+        <tr>
+            <th>Id</th>
+            <td>{{ product_category.id }}</td>
+        </tr>
+
+        <tr>
+            <th>Name</th>
+            <td>{{ product_category.name }}</td>
+        </tr>
+
+        <tr>
+            <th>Description</th>
+            <td>{{ product_category.description }}</td>
+        </tr>
+
+        <tr>
+            <th>Created at</th>
+            <td>{{ product_category.createdAt ? product_category.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+        </tr>
+
+        <tr>
+            <th>Updated at</th>
+            <td>{{ product_category.updatedAt ? product_category.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+        </tr>
+        </tbody>
+    </table>
+{% endblock %}
