@@ -2,15 +2,15 @@
 
 namespace App\Entity;
 
-use App\Repository\ProductRepository;
+use App\Repository\ProductCategoryRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity(repositoryClass=ProductRepository::class)
+ * @ORM\Entity(repositoryClass=ProductCategoryRepository::class)
  * @ORM\HasLifecycleCallbacks()
  */
-class Product
+class ProductCategory
 {
     /**
      * @ORM\Id
