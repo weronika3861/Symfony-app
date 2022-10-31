@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Product categories{% endblock %}
+
+{% block body %}
+    <h3 class="display-4">Product categories</h3>
+
+    <div class="w-100 p-3">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                {% if label == 'error' %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ message }}
+                    </div>
+                {% elseif label == 'success' %}
+                    <div class="alert alert-success" role="alert">
+                        {{ message }}
+                    </div>
+                {% else %}
+                    <div class="alert alert-secondary" role="alert">
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <a class="btn btn-primary" href="{{ path('product_category_new') }}">Create new product category</a>
+    </div>
+
+    <table class="table table-hover table-bordered">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Created at</th>
+            <th>Updated at</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for product_category in product_categories %}
+            <tr>
+                <td>{{ product_category.id }}</td>
+                <td>{{ product_category.name }}</td>
+                <td>{{ product_category.description }}</td>
+                <td>{{ product_category.createdAt ? product_category.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ product_category.updatedAt ? product_category.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a class="btn btn-light" href="{{ path('product_category_show', {'id': product_category.id}) }}">Show product category</a>
+                </td>
+                <td>
+                    <a class="btn btn-light" href="{{ path('product_category_edit', {'id': product_category.id}) }}">Edit product category</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="7"> no records found </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
