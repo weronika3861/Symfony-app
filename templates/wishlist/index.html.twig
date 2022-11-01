@@ -25,13 +25,24 @@
         {% endfor %}
     </div>
 
-    {% for product in products %}
+    {% if products %}
+        {% for product in products %}
+            <div class="row col-md-4 mb-3">
+                <a class="btn btn-secondary" style="margin-right: 4px;" href="{{ path('product_show', {'id': product.id}) }}">{{ product.name }}</a>
+                <form method="post" action="{{ path('wishlist_delete_product', {'id': product.id}) }}">
+                    <button class="btn btn-danger">Remove from wishlist</button>
+                </form>
+            </div>
+        {% endfor %}
         <div class="col-md-4 mb-3">
-            <a class="btn btn-secondary" href="{{ path('product_show', {'id': product.id}) }}">{{ product.name }}</a>
+            <form method="post" action="{{ path('wishlist_delete_all_products') }}">
+                <button class="btn btn-danger">Remove all</button>
+            </form>
         </div>
     {% else %}
         <div class="col-md-4 mb-3">
             <h4>No records found</h4>
         </div>
-    {% endfor %}
+    {% endif %}
+
 {% endblock %}

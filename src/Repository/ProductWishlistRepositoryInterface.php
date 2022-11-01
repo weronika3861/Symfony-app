@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Exception\EmptyWishlistException;
+use App\Exception\WishlistNotContainProductException;
+
 interface ProductWishlistRepositoryInterface
 {
     /**
@@ -14,4 +17,16 @@ interface ProductWishlistRepositoryInterface
      * @return ?[]int
      */
     public function getProductIds(): ?array;
+
+    /**
+     * @param int $productId
+     * @throws EmptyWishlistException
+     * @throws WishlistNotContainProductException
+     */
+    public function deleteByProductId(int $productId): void;
+
+    /**
+     * @throws EmptyWishlistException
+     */
+    public function deleteAllProductIds(): void;
 }
