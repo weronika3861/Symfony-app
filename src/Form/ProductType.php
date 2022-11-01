@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace App\Form;
 
 use App\Entity\Product;
+use App\Entity\ProductCategory;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -23,6 +25,15 @@ class ProductType extends AbstractType
                 ]
             ])
             ->add('description')
+            ->add('categories', EntityType::class, [
+                'label_attr' => [
+                    'class' => 'checkbox-custom',
+                ],
+                'class' => ProductCategory::class,
+                'choice_label' => 'name',
+                'multiple' => true,
+                'expanded' => true
+            ])
         ;
     }
 

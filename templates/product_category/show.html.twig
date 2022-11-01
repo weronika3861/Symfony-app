@@ -41,6 +41,15 @@
             <th>Updated at</th>
             <td>{{ product_category.updatedAt ? product_category.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
         </tr>
+
+        <tr>
+            <th>Products</th>
+            <td>
+                {% for product in products %}
+                    <a class="btn btn-light" href="{{ path('product_show', {'id': product.id}) }}">{{ product.name }}</a>
+                {% endfor %}
+            </td>
+        </tr>
         </tbody>
     </table>
 {% endblock %}
