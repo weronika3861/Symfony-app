@@ -74,7 +74,8 @@ class ProductCategoryController extends AbstractController
     public function show(ProductCategory $productCategory): Response
     {
         return $this->render('product_category/show.html.twig', [
-            'product_category' => $productCategory
+            'product_category' => $productCategory,
+            'products' => $productCategory->getProducts()
         ]);
     }
 
