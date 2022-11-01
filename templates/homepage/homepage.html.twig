@@ -4,4 +4,10 @@
 
 {% block body %}
     <h3 class="display-4">Homepage</h3>
+    <div class="col-md-4 mb-3">
+        <a class="btn btn-secondary" href="{{ path('product_index') }}">All products</a>
+    </div>
+    <div class="col-md-4 mb-3">
+        <a class="btn btn-secondary" href="{{ path('product_category_index') }}">All categories</a>
+    </div>
 {% endblock %}
