@@ -9,7 +9,9 @@
         <a class="btn btn-secondary" href="{{ path('product_category_index') }}">List of product categories</a>
     </div>
     <div class="col-md-4 mb-3">
-        <a class="btn btn-primary" href="{{ path('product_category_edit', {'id': product_category.id}) }}">Edit product category</a>
+        <form method="post" action="{{ path('product_category_edit', {'id': product_category.id}) }}">
+            <button class="btn btn-primary">Edit product category</button>
+        </form>
     </div>
     <div class="col-md-4 mb-3">
         {{ include('product_category/_delete_form.html.twig') }}
@@ -46,7 +48,12 @@
             <th>Products</th>
             <td>
                 {% for product in products %}
-                    <a class="btn btn-light" href="{{ path('product_show', {'id': product.id}) }}">{{ product.name }}</a>
+                    <div class="row col-md-4 mb-3">
+                        <a class="btn btn-secondary" style="margin-right: 4px;" href="{{ path('product_show', {'id': product.id}) }}">{{ product.name }}</a>
+                        <form method="post" action="{{ path('wishlist_add_product', {'id': product.id}) }}">
+                            <button class="btn btn-primary">Add to wishlist</button>
+                        </form>
+                    </div>
                 {% endfor %}
             </td>
         </tr>

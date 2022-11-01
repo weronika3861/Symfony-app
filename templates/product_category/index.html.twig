@@ -26,7 +26,9 @@
     </div>
 
     <div class="col-md-4 mb-3">
-        <a class="btn btn-primary" href="{{ path('product_category_new') }}">Create new product category</a>
+        <form method="post" action="{{ path('product_category_new') }}">
+            <button class="btn btn-primary">Create new product category</button>
+        </form>
     </div>
 
     <table class="table table-hover table-bordered">
@@ -48,10 +50,12 @@
                 <td>{{ product_category.createdAt ? product_category.createdAt|date('Y-m-d H:i:s') : '' }}</td>
                 <td>{{ product_category.updatedAt ? product_category.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
                 <td>
-                    <a class="btn btn-light" href="{{ path('product_category_show', {'id': product_category.id}) }}">Show product category</a>
+                    <a class="btn btn-secondary" href="{{ path('product_category_show', {'id': product_category.id}) }}">Show product category</a>
                 </td>
                 <td>
-                    <a class="btn btn-light" href="{{ path('product_category_edit', {'id': product_category.id}) }}">Edit product category</a>
+                    <form method="post" action="{{ path('product_category_edit', {'id': product_category.id}) }}">
+                        <button class="btn btn-primary">Edit product category</button>
+                    </form>
                 </td>
             </tr>
         {% else %}
