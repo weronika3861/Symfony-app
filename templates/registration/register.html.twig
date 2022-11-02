@@ -1,9 +1,9 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Homepage{% endblock %}
+{% block title %}Registration{% endblock %}
 
 {% block body %}
-    <h3 class="display-4">Homepage</h3>
+    <h3 class="display-4">Registration</h3>
 
     <div class="w-100 p-3">
         {% for label, messages in app.flashes %}
@@ -25,10 +25,9 @@
         {% endfor %}
     </div>
 
-    <div class="col-md-4 mb-3">
-        <a class="btn btn-secondary" href="{{ path('product_index') }}">All products</a>
-    </div>
-    <div class="col-md-4 mb-3">
-        <a class="btn btn-secondary" href="{{ path('product_category_index') }}">All categories</a>
-    </div>
+    {% for flashError in app.flashes('varify_email_error') %}
+        <div class="alert alert-danger" role="alert"> {{ flashError }} </div>
+    {% endfor %}
+
+    {{ include('registration/_form.html.twig') }}
 {% endblock %}
