@@ -5,21 +5,35 @@
                 <a class="nav-link" aria-current="page" href="{{ path('homepage_index') }}">Main page</a>
             </li>
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Categories
                 </a>
                 <ul class="dropdown-menu navbar-dark bg-light">
                     {% for category in categories %}
-                        <li><a class="dropdown-item" href="{{ path('product_category_show', {'id': category.id}) }}">{{ category.name }}</a></li>
+                        <li>
+                            <a class="dropdown-item" href="{{ path('product_category_show', {'id': category.id}) }}">
+                                {{ category.name }}
+                            </a>
+                        </li>
                     {% endfor %}
                 </ul>
             </li>
             <li class="nav-item">
                 <a class="nav-link" aria-current="page" href="{{ path('wishlist_index') }}">Wishlist</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" aria-current="page" href="{{ path('register_index') }}">Registration</a>
-            </li>
+            {% if is_granted('ROLE_USER') %}
+                <li class="nav-item">
+                    <a class="nav-link" aria-current="page" href="{{ path('logout') }}">Logout</a>
+                </li>
+            {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" aria-current="page" href="{{ path('register_index') }}">Registration</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" aria-current="page" href="{{ path('login_index') }}">Log in</a>
+                </li>
+            {% endif %}
         </ul>
     </div>
 </nav>

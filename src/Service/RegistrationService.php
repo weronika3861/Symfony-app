@@ -20,8 +20,11 @@ class RegistrationService
     /**
      * @throws ORMException
      */
-    public function register(User $user, UserPasswordHasherInterface $passwordHasher, ?string $encodedPassword): void
-    {
+    public function register(
+        User $user,
+        UserPasswordHasherInterface $passwordHasher,
+        ?string $encodedPassword
+    ): void {
         $user->setPassword($passwordHasher->hashPassword($user, $encodedPassword));
 
         $this->userRepository->save($user);
