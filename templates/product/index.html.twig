@@ -57,10 +57,15 @@
                         <button class="btn btn-primary">Edit product</button>
                     </form>
                 </td>
+                <td>
+                    <form method="post" action="{{ path('wishlist_add_product', {'id': product.id}) }}">
+                        <button class="btn btn-primary">Add to wishlist</button>
+                    </form>
+                </td>
             </tr>
         {% else %}
             <tr>
-                <td colspan="7"> no records found </td>
+                <td colspan="8"> no records found </td>
             </tr>
         {% endfor %}
     </table>
