@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/product")
+ * @Route("/products")
  */
 class ProductController extends AbstractController
 {
@@ -47,7 +47,7 @@ class ProductController extends AbstractController
 
             if ($form->isSubmitted()) {
                 $this->checkIfFormIsValid($form);
-                $this->productService->add($product);
+                $this->productService->addProduct($product);
                 $this->addFlash('success', 'Product created.');
 
                 return $this->redirectToRoute('product_index');
@@ -90,7 +90,7 @@ class ProductController extends AbstractController
 
             if ($form->isSubmitted()) {
                 $this->checkIfFormIsValid($form);
-                $this->productService->edit();
+                $this->productService->editProduct();
                 $this->addFlash('success', 'Product updated.');
 
                 return $this->redirectToRoute('product_index');
@@ -117,8 +117,8 @@ class ProductController extends AbstractController
     public function delete(Request $request, Product $product): Response
     {
         try {
-            if ($this->isCsrfTokenValid('delete' . $product->getId(), $request->get('_token'))) {
-                $this->productService->delete($product);
+            if (!$this->isCsrfTokenValid('delete' . $product->getId(), $request->get('_token'))) {
+                $this->productService->deleteProduct($product);
 
                 $this->addFlash('success', 'Product deleted.');
             }
