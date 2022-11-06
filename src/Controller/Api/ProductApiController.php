@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 
 use App\Exception\InvalidCategoryException;
 use App\Exception\MissingAttributeException;
+use App\Service\ArrayProductDenormalizer;
 use App\Service\ProductService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,13 +19,18 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ProductApiController extends AbstractController
 {
+    private ArrayProductDenormalizer $arrayProductDenormalizer;
     private SerializerInterface $serializer;
     private ProductService $productService;
 
-    public function __construct(SerializerInterface $serializer, ProductService $productService)
-    {
+    public function __construct(
+        ArrayProductDenormalizer $arrayProductDenormalizer,
+        SerializerInterface $serializer,
+        ProductService $productService
+    ) {
         $this->serializer = $serializer;
         $this->productService = $productService;
+        $this->arrayProductDenormalizer = $arrayProductDenormalizer;
     }
 
     /**
@@ -85,7 +91,7 @@ class ProductApiController extends AbstractController
         try {
             $requestArray = $request->toArray();
 
-            $this->productService->add($requestArray);
+            $this->productService->add($this->arrayProductDenormalizer->execute($requestArray));
         } catch (MissingAttributeException $e) {
             return $this->json(
                 ['MISSING ATTRIBUTE' => Response::HTTP_BAD_REQUEST],

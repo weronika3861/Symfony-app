@@ -26,8 +26,14 @@ interface ProductRepositoryInterface
     public function edit(): void;
 
     /**
-     * @param int[] $productsId
+     * @param int[] $productsIds
      * @return Product[]
      */
-    public function getProductsByIds(array $productsId): array;
+    public function getProductsByIds(array $productsIds): array;
+
+    /**
+     * @param string[] $productsNames
+     * @return Product[]
+     */
+    public function getProductsByNames(array $productsNames): array;
 }
