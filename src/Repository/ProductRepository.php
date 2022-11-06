@@ -37,4 +37,9 @@ class ProductRepository extends ServiceEntityRepository implements ProductReposi
     {
         $this->_em->flush();
     }
+
+    public function getProductsByIds(array $productsId): array
+    {
+        return $this->findBy(['id' => $productsId]);
+    }
 }

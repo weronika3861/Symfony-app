@@ -20,7 +20,7 @@ class Product
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"item", "list"})
+     * @Groups({"item", "list", "export"})
      */
     private $id;
 
@@ -28,7 +28,7 @@ class Product
      * @ORM\Column(type="string", length=255)
      * @Assert\Type("string")
      * @Assert\Length(min=5)
-     * @Groups({"item", "list"})
+     * @Groups({"item", "list", "export"})
      */
     private $name;
 
@@ -41,19 +41,19 @@ class Product
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups({"item"})
+     * @Groups({"item", "export"})
      */
     private $createdAt;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups({"item"})
+     * @Groups({"item", "export"})
      */
     private $updatedAt;
 
     /**
      * @ORM\ManyToMany(targetEntity=ProductCategory::class, inversedBy="products", cascade={"persist"})
-     * @Groups({"item"})
+     * @Groups({"item", "export"})
      */
     private $categories;
 
