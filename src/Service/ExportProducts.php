@@ -11,7 +11,8 @@ use App\Repository\ProductRepositoryInterface;
 
 class ExportProducts
 {
-    private const AVAILABLE_FORMATS = ['csv'];
+    private const CSV_FORMAT = 'csv';
+    private const AVAILABLE_FORMATS = [ self::CSV_FORMAT ];
 
     private ExportProductsSerializer $exportProductsSerializer;
     private ExportDataIntoFile $exportDataIntoFile;

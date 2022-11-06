@@ -6,7 +6,6 @@ namespace App\Service;
 use App\Entity\Product;
 use App\Entity\ProductCategory;
 use App\Exception\InvalidCategoryException;
-use App\Exception\MissingAttributeException;
 use App\Repository\ProductCategoryRepository;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\Exception\ORMException;
@@ -80,29 +79,12 @@ class ProductService
     }
 
     /**
-     * @param array $productData { name: string, description: string, categories: array{id: int} }
-     * @throws InvalidCategoryException
-     * @throws MissingAttributeException
+     * @param Product $product
      * @throws ORMException
-     * @throws ExceptionInterface
      */
-    public function add(array $productData): void
+    public function add(Product $product): void
     {
-        if (!$this->allAttributesAreSet($productData)) {
-            throw new MissingAttributeException();
-        }
-
-        /** @var Product $product */
-        $product = $this->serializer->denormalize($productData, Product::class);
-
-        $categories = $this->getValidCategories($productData['categories']);
-        $product->removeCategories();
-
-        foreach ($categories as $category) {
-            $product->addCategory($category);
-        }
         $this->validate($product);
-
         $this->productRepository->add($product);
     }
 
@@ -146,10 +128,31 @@ class ProductService
     }
 
     /**
+     * @param int[] $categoriesIdsFromProductData
+     * @param ProductCategory[] $categoriesFromRepository
+     * @return bool
+     */
+    public function allCategoriesFromProductDataAreValid(
+        array $categoriesIdsFromProductData,
+        array $categoriesFromRepository
+    ): bool {
+        return count($categoriesIdsFromProductData) === count($categoriesFromRepository);
+    }
+
+    /**
+     * @param int[] $categoryIds
+     * @return ProductCategory[]
+     */
+    public function getCategoriesFromRepository(array $categoryIds): array
+    {
+        return $this->productCategoryRepository->findBy(['id' => $categoryIds]);
+    }
+
+    /**
      * @param $categoriesFromProductData array{id: int}
      * @return int[]
      */
-    private function getCategoriesIdsFromProductData(array $categoriesFromProductData): array
+    public function getCategoriesIdsFromProductData(array $categoriesFromProductData): array
     {
         $categoriesIds = [];
         foreach ($categoriesFromProductData as $category) {
@@ -160,44 +163,21 @@ class ProductService
     }
 
     /**
-     * @param int[] $categoryIds
-     * @return ProductCategory[]
-     */
-    private function getCategoriesFromRepository(array $categoryIds): array
-    {
-        return $this->productCategoryRepository->findBy(['id' => $categoryIds]);
-    }
-
-    /**
-     * @param int[] $categoriesIdsFromProductData
-     * @param ProductCategory[] $categoriesFromRepository
-     * @return bool
-     */
-    private function allCategoriesFromProductDataAreValid(
-        array $categoriesIdsFromProductData,
-        array $categoriesFromRepository
-    ): bool {
-        return count($categoriesIdsFromProductData) === count($categoriesFromRepository);
-    }
-
-    /**
-     * @param $categoriesFromProductData array{id: int}
-     * @return ProductCategory[]
+     * @param Product& $product
+     * @param int[] $categoriesIds
      * @throws InvalidCategoryException
      */
-    private function getValidCategories(array $categoriesFromProductData): array
+    private function editCategories(Product& $product, array $categoriesIds): void
     {
-        $categoriesIds = $this->getCategoriesIdsFromProductData(
-            $categoriesFromProductData
-        );
+        $this->checkIfIsAnyInvalidCategory($categoriesIds);
 
-        $categoriesFromRepository = $this->getCategoriesFromRepository($categoriesIds);
+        $oldCategoriesIds = $this->getOldCategoriesIds($product);
 
-        if (!$this->allCategoriesFromProductDataAreValid($categoriesIds, $categoriesFromRepository)) {
-            throw new InvalidCategoryException();
-        }
+        $categoriesToDeleteIds = array_diff($oldCategoriesIds, $categoriesIds);
+        $categoriesToAddIds = array_diff($categoriesIds, $oldCategoriesIds);
 
-        return $categoriesFromRepository;
+        $this->deleteOldCategories($product, $categoriesToDeleteIds);
+        $this->addNewCategories($product, $categoriesToAddIds);
     }
 
     /**
@@ -211,24 +191,6 @@ class ProductService
         if (!$this->allCategoriesFromProductDataAreValid($categoriesIds, $categoriesFromRepository)) {
             throw new InvalidCategoryException();
         }
-    }
-
-    /**
-     * @param Product $product
-     * @param int[] $categoriesIds
-     * @throws InvalidCategoryException
-     */
-    private function editCategories(Product $product, array $categoriesIds): void
-    {
-        $this->checkIfIsAnyInvalidCategory($categoriesIds);
-
-        $oldCategoriesIds = $this->getOldCategoriesIds($product);
-
-        $categoriesToDeleteIds = array_diff($oldCategoriesIds, $categoriesIds);
-        $categoriesToAddIds = array_diff($categoriesIds, $oldCategoriesIds);
-
-        $this->deleteOldCategories($product, $categoriesToDeleteIds);
-        $this->addNewCategories($product, $categoriesToAddIds);
     }
 
     /**
@@ -288,18 +250,5 @@ class ProductService
 
             throw new InvalidArgumentException(implode(', ', $invalidFields));
         }
-    }
-
-    /**
-     * @param array $productData { name: string, description: string, categories: array{id: int} }
-     * @return bool
-     */
-    private function allAttributesAreSet(array $productData): bool
-    {
-        return isset(
-            $productData['name'],
-            $productData['description'],
-            $productData['categories']
-        );
     }
 }
