@@ -7,7 +7,6 @@ use App\Entity\Product;
 use App\Entity\ProductCategory;
 use App\Exception\InvalidCategoryException;
 use App\Exception\MissingAttributeException;
-use App\Exception\TooShortNameException;
 use App\Repository\ProductCategoryRepository;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\Exception\ORMException;
@@ -85,7 +84,6 @@ class ProductService
      * @throws InvalidCategoryException
      * @throws MissingAttributeException
      * @throws ORMException
-     * @throws TooShortNameException
      * @throws ExceptionInterface
      */
     public function add(array $productData): void
@@ -113,7 +111,6 @@ class ProductService
      * @param $productData array{ name: string, description: string, categories: array{id: int} }
      * @throws InvalidCategoryException
      * @throws ORMException
-     * @throws TooShortNameException
      * @throws ExceptionInterface
      */
     public function edit(Product $product, array $productData): void
@@ -276,16 +273,10 @@ class ProductService
 
     /**
      * @param Product $product
-     * @throws TooShortNameException
      * @throws InvalidArgumentException
      */
     private function validate(Product $product): void
     {
-        $errors = $this->validator->validate($product, null, ['name']);
-        if (count($errors) > 0) {
-            throw new TooShortNameException($product->getName());
-        }
-
         $errors = $this->validator->validate($product);
         if (count($errors) > 0) {
             $invalidFields = [];

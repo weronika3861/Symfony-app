@@ -5,7 +5,6 @@ namespace App\Controller\Api;
 
 use App\Exception\InvalidCategoryException;
 use App\Exception\MissingAttributeException;
-use App\Exception\TooShortNameException;
 use App\Service\ProductService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -92,11 +91,6 @@ class ProductApiController extends AbstractController
                 ['MISSING ATTRIBUTE' => Response::HTTP_BAD_REQUEST],
                 Response::HTTP_BAD_REQUEST
             );
-        } catch (TooShortNameException $e) {
-            return $this->json(
-                ['TOO SHORT NAME: ' . $e->getMessage() => Response::HTTP_BAD_REQUEST],
-                Response::HTTP_BAD_REQUEST
-            );
         } catch (InvalidCategoryException $e) {
             return $this->json(
                 ['ASSIGNED INVALID CATEGORY' => Response::HTTP_BAD_REQUEST],
@@ -130,11 +124,6 @@ class ProductApiController extends AbstractController
             $requestArray = $request->toArray();
 
             $this->productService->edit($product, $requestArray);
-        } catch (TooShortNameException $e) {
-            return $this->json(
-                ['TOO SHORT NAME: ' . $e->getMessage() => Response::HTTP_BAD_REQUEST],
-                Response::HTTP_BAD_REQUEST
-            );
         } catch (InvalidCategoryException $e) {
             return $this->json(
                 ['ASSIGNED INVALID CATEGORY' => Response::HTTP_BAD_REQUEST],
