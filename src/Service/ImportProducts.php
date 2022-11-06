@@ -49,7 +49,7 @@ class ImportProducts
         }
 
         foreach ($importedProductsData as $data) {
-            $this->productService->add($this->arrayProductDenormalizer->execute($data));
+            $this->productService->add($this->arrayProductDenormalizer->execute($data, null));
         }
     }
 }

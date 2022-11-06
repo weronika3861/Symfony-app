@@ -84,7 +84,7 @@ class ImportProductsFromFile
     }
 
     /**
-     * @param $data array{ array{ name: string, categories.0.id: string, ... } }
+     * @param array $data { array{ name: string, categories.0.id: string, ... } }
      * @return array{ array{ name: string, description: string, categories: array{id: int} } }
      */
     private function reformatData(array $data): array
@@ -107,7 +107,7 @@ class ImportProductsFromFile
     }
 
     /**
-     * @param $row array{ name: string, categories.0.id: string, ... }
+     * @param array $row { name: string, categories.0.id: string, ... }
      * @return int[]
      */
     private function findCategoriesIds(array& $row): array

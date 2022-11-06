@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\Product;
+use App\Exception\ProductNotExistException;
 use Doctrine\ORM\Exception\ORMException;
 
 interface ProductRepositoryInterface
@@ -36,4 +37,11 @@ interface ProductRepositoryInterface
      * @return Product[]
      */
     public function getProductsByNames(array $productsNames): array;
+
+    /**
+     * @param int $id
+     * @return Product
+     * @throws ProductNotExistException
+     */
+    public function get(int $id): Product;
 }

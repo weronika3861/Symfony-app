@@ -59,9 +59,21 @@ class Product
      */
     private $categories;
 
+    /**
+     * @ORM\OneToMany(targetEntity=ProductImage::class, mappedBy="product")
+     */
+    private $images;
+
+    /**
+     * @ORM\OneToOne(targetEntity=ProductImage::class, cascade={"persist"})
+     * ORM\JoinColumn(onDelete="SET NULL")
+     */
+    private $mainImage;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
+        $this->images = new ArrayCollection();
     }
 
     public function getId(): int
@@ -139,5 +151,51 @@ class Product
     public function removeCategories(): void
     {
         $this->categories->clear();
+    }
+
+    /**
+     * @return Collection|ProductImage[]
+     */
+    public function getImages(): Collection
+    {
+        return $this->categories;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getImagesNames(): array
+    {
+        $names = [];
+
+        /** @var ProductImage $image */
+        foreach ($this->getImages() as $image) {
+            $names[] = $image->getFilename();
+        }
+
+        return $names;
+    }
+
+    public function addImage(ProductImage $image): void
+    {
+        if (!$this->images->contains($image)) {
+            $this->images[] = $image;
+            $image->setProduct($this);
+        }
+    }
+
+    public function removeImage(ProductImage $image): void
+    {
+        $this->images->removeElement($image);
+    }
+
+    public function getMainImage(): ?ProductImage
+    {
+        return $this->mainImage;
+    }
+
+    public function setMainImage(?ProductImage $mainImage): void
+    {
+        $this->mainImage = $mainImage;
     }
 }

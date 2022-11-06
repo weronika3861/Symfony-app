@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Choose main image{% endblock %}
+
+{% block body %}
+    <h3 class="display-4">Choose main image</h3>
+
+    {{ form_start(form) }}
+    <div class="form-row">
+        <div class="col-md-4 mb-3"
+             {{ form_widget(form.images) }}
+        </div>
+        <div class="col-md-4 mb-3">
+            <button class="btn btn-primary">{{ button_label|default('Save') }}</button>
+        </div>
+    </div>
+
+{% endblock %}

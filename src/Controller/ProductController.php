@@ -5,13 +5,20 @@ namespace App\Controller;
 
 use App\Entity\Product;
 use App\Exception\InvalidFormException;
+use App\Exception\ProductNotExistException;
+use App\Form\DeletingImagesForm;
+use App\Form\MainImageForm;
 use App\Form\ProductType;
 use App\Service\ProductService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 
 /**
  * @Route("/products")
@@ -19,10 +26,17 @@ use Symfony\Component\Routing\Annotation\Route;
 class ProductController extends AbstractController
 {
     private ProductService $productService;
+    private DeletingImagesForm $deletingImagesForm;
+    private MainImageForm $mainImageForm;
 
-    public function __construct(ProductService $productService)
-    {
+    public function __construct(
+        ProductService $productService,
+        $deletingImagesForm,
+        $mainImageForm
+    ) {
         $this->productService = $productService;
+        $this->deletingImagesForm = $deletingImagesForm;
+        $this->mainImageForm = $mainImageForm;
     }
 
     /**
@@ -47,13 +61,16 @@ class ProductController extends AbstractController
 
             if ($form->isSubmitted()) {
                 $this->checkIfFormIsValid($form);
-                $this->productService->addProduct($product);
+                $this->productService->attachImages($product, $form['new_images']->getData());
+                $this->productService->add($product);
                 $this->addFlash('success', 'Product created.');
 
-                return $this->redirectToRoute('product_index');
+                return $this->redirectToRoute('choose_main_image', [
+                    'id' => $product->getId()
+                ]);
             }
-        } catch (InvalidFormException $invalidFormException) {
-            $this->addFlash('error', $invalidFormException->getMessage());
+        } catch (InvalidFormException | FileException $exception) {
+            $this->addFlash('error', $exception->getMessage());
 
             return $this->redirectToRoute('product_index');
         } catch (\Exception $exception) {
@@ -85,21 +102,44 @@ class ProductController extends AbstractController
     public function edit(Request $request, Product $product): Response
     {
         try {
-            $form = $this->createForm(ProductType::class, $product);
-            $form->handleRequest($request);
+            $productForm = $this->createForm(ProductType::class, $product);
+            $productForm->handleRequest($request);
 
-            if ($form->isSubmitted()) {
-                $this->checkIfFormIsValid($form);
-                $this->productService->editProduct();
+            $deletingImagesForm = $this->deletingImagesForm->createForm(
+              $this->createFormBuilder(),
+              $product->getImages()->getValues()
+            );
+            $deletingImagesForm->handleRequest($request);
+
+            if ($deletingImagesForm->isSubmitted()) {
+                $this->checkIfFormIsValid($deletingImagesForm);
+                $this->productService->removeImages($product, $deletingImagesForm['images_to_delete']->getData());
+                $this->productService->edit($product, []);
+
+                return $this->redirectToRoute('product_edit', [
+                    'id' => $product->getId()
+                ]);
+            }
+
+            if ($productForm->isSubmitted()) {
+                $this->checkIfFormIsValid($productForm);
+                $this->productService->attachImages($product, $productForm['new_images']->getData());
+                $this->productService->edit($product, []);
                 $this->addFlash('success', 'Product updated.');
 
-                return $this->redirectToRoute('product_index');
+                return $this->redirectToRoute('choose_main_image', [
+                    'id' => $product->getId()
+                ]);
             }
-        } catch (InvalidFormException $invalidFormException) {
-            $this->addFlash('error', $invalidFormException->getMessage());
+        } catch (FileNotFoundException | IOException $exception) {
+            $this->addFlash('error', 'Removing images failed. Try again.');
 
             return $this->redirectToRoute('product_index');
-        } catch (\Exception $exception) {
+        } catch (InvalidFormException | FileException $exception) {
+            $this->addFlash('error', $exception->getMessage());
+
+            return $this->redirectToRoute('product_index');
+        } catch (\Exception|ExceptionInterface $exception) {
             $this->addFlash('error', 'Updating product failed. Try again.');
 
             return $this->redirectToRoute('product_index');
@@ -107,7 +147,8 @@ class ProductController extends AbstractController
 
         return $this->render('product/edit.html.twig', [
             'product' => $product,
-            'form' => $form->createView()
+            'form' => $productForm->createView(),
+            'deleting_images_form' => $deletingImagesForm->createView()
         ]);
     }
 
@@ -118,15 +159,63 @@ class ProductController extends AbstractController
     {
         try {
             if (!$this->isCsrfTokenValid('delete' . $product->getId(), $request->get('_token'))) {
-                $this->productService->deleteProduct($product);
+                $this->productService->delete($product);
 
                 $this->addFlash('success', 'Product deleted.');
             }
+        } catch (FileNotFoundException | IOException $exception) {
+            $this->addFlash('error', 'Removing images failed. Try again.');
         } catch (\Exception $exception) {
             $this->addFlash('error', 'Deleting product failed. Try again.');
         }
 
         return $this->redirectToRoute('product_index');
+    }
+
+    /**
+     * @Route("/{id}/choose_main_image", name="choose_main_image", methods={"GET", "POST"})
+     */
+    public function chooseMainImage(int $id, Request $request): Response
+    {
+        try {
+            $product = $this->productService->get($id);
+
+            $form = $this->mainImageForm->createForm(
+                $this->createFormBuilder(),
+                $product->getImages()->getValues()
+            );
+
+            $form->handleRequest($request);
+            if ($form->isSubmitted()) {
+               $this->checkIfFormIsValid($form);
+               $product->setMainImage($form['images']->getData());
+               $this->productService->edit($product, []);
+
+               $this->addFlash('success', 'Image has been chosen.');
+
+               return $this->redirectToRoute('product_index');
+            }
+        } catch (ProductNotExistException $exception) {
+            $this->addFlash(
+                'erorr',
+                'You cannot change main image. Product with id:' .
+                $exception->getMessage() .
+                ' does not exist.'
+            );
+
+            return $this->redirectToRoute('product_index');
+        } catch (\Exception | ExceptionInterface $exception) {
+            $this->addFlash(
+                'erorr',
+                'Choosing an image failed.'
+            );
+
+            return $this->redirectToRoute('product_index');
+        }
+
+        return $this->render('product/choose_image.html.twig', [
+            'form' => $form->createView()
+        ]);
     }
 
     /**

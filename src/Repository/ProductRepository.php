@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Product;
+use App\Exception\ProductNotExistException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -46,5 +47,15 @@ class ProductRepository extends ServiceEntityRepository implements ProductReposi
     public function getProductsByNames(array $productsNames): array
     {
         return $this->findBy(['id' => $productsNames]);
+    }
+
+    public function get(int $id): Product
+    {
+        $product = $this->find($id);
+        if (!$product) {
+            throw new ProductNotExistException((string)$id);
+        }
+
+        return $product;
     }
 }

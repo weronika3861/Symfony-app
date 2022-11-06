@@ -14,7 +14,7 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method ProductCategory[]    findAll()
  * @method ProductCategory[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class ProductCategoryRepository extends ServiceEntityRepository
+class ProductCategoryRepository extends ServiceEntityRepository implements ProductCategoryRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -36,5 +36,10 @@ class ProductCategoryRepository extends ServiceEntityRepository
     public function edit(): void
     {
         $this->_em->flush();
+    }
+
+    public function findByIds(array $ids): array
+    {
+        return $this->findBy(['id' => $ids]);
     }
 }

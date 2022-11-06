@@ -36,9 +36,11 @@
         <tr>
             <th>Id</th>
             <th>Name</th>
+            <th>Main image</th>
             <th>Description</th>
             <th>Created at</th>
             <th>Updated at</th>
+            <th colspan="3">Actions</th>
         </tr>
         </thead>
         <tbody>
@@ -46,6 +48,12 @@
             <tr>
                 <td>{{ product.id }}</td>
                 <td>{{ product.name }}</td>
+                <td>
+                    {% if product.mainImage is not null %}
+                        <img src="{{ asset(['uploads', product.mainImage.filename]|join('/')) }}"
+                             width="100" height="100" alt="main image">
+                    {% endif %}
+                </td>
                 <td>{{ product.description }}</td>
                 <td>{{ product.createdAt ? product.createdAt|date('Y-m-d H:i:s') : '' }}</td>
                 <td>{{ product.updatedAt ? product.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
