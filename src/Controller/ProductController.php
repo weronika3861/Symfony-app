@@ -31,8 +31,8 @@ class ProductController extends AbstractController
 
     public function __construct(
         ProductService $productService,
-        $deletingImagesForm,
-        $mainImageForm
+        DeletingImagesForm $deletingImagesForm,
+        MainImageForm $mainImageForm
     ) {
         $this->productService = $productService;
         $this->deletingImagesForm = $deletingImagesForm;
