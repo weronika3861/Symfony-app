@@ -24,4 +24,10 @@ interface ProductRepositoryInterface
      * @throws ORMException
      */
     public function edit(): void;
+
+    /**
+     * @param int[] $productsId
+     * @return Product[]
+     */
+    public function getProductsByIds(array $productsId): array;
 }

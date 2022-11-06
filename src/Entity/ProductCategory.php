@@ -28,7 +28,7 @@ class ProductCategory
      * @ORM\Column(type="string", length=255)
      * @Assert\Type("string")
      * @Assert\Length(min=5)
-     * @Groups({"item"})
+     * @Groups({"item", "export"})
      */
     private $name;
 
