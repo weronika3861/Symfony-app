@@ -37,7 +37,7 @@ class ProductType extends AbstractType
                 'multiple' => true,
                 'expanded' => true
             ])
-            ->add('images', FileType::class, [
+            ->add('new_images', FileType::class, [
                 'label' => "images",
                 'multiple' => true,
                 'required' => false,
