@@ -7,18 +7,44 @@ use App\Entity\Product;
 use App\Entity\ProductCategory;
 use App\Exception\InvalidCategoryException;
 use App\Exception\MissingAttributeException;
+use App\Repository\ProductCategoryRepository;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class ArrayProductDenormalizer
 {
-    private ProductService $productService;
-    private SerializerInterface $serializer;
+    private const REQUIRED_FIELDS = ['name', 'description', 'categories'];
 
-    public function __construct(ProductService $productService, SerializerInterface $serializer)
-    {
+    private SerializerInterface $serializer;
+    private ProductCategoryService $productCategoryService;
+    private ProductCategoryRepository $productCategoryRepository;
+
+    public function __construct(
+        SerializerInterface $serializer,
+        ProductCategoryService $productCategoryService,
+        ProductCategoryRepository $productCategoryRepository
+    ) {
         $this->serializer = $serializer;
-        $this->productService = $productService;
+        $this->productCategoryService = $productCategoryService;
+        $this->productCategoryRepository = $productCategoryRepository;
+    }
+
+    /**
+     * @param ?Product $product
+     * @param array $productData { name: string, description: string, categories: array{id: int} }
+     * @return Product
+     * @throws InvalidCategoryException
+     * @throws MissingAttributeException
+     * @throws ExceptionInterface
+     */
+    public function execute(array $productData, ?Product $product): Product
+    {
+        if (is_null($product)) {
+            return $this->denormalizeNewProduct($productData);
+        }
+
+        return $this->denormalizeExistingProduct($product, $productData);
     }
 
     /**
@@ -28,7 +54,7 @@ class ArrayProductDenormalizer
      * @throws MissingAttributeException
      * @throws InvalidCategoryException
      */
-    public function execute(array $productData): Product
+    private function denormalizeNewProduct(array $productData): Product
     {
         if (!$this->allAttributesAreSet($productData)) {
             throw new MissingAttributeException();
@@ -48,23 +74,31 @@ class ArrayProductDenormalizer
     }
 
     /**
-     * @param $categoriesFromProductData array{id: int}
-     * @return ProductCategory[]
+     * @param Product $product
+     * @param array $productData { name: string, description: string, categories: array{id: int} }
+     * @return Product
      * @throws InvalidCategoryException
+     * @throws ExceptionInterface
      */
-    private function getValidCategories(array $categoriesFromProductData): array
+    private function denormalizeExistingProduct(Product $product, array $productData): Product
     {
-        $categoriesIds = $this->productService->getCategoriesIdsFromProductData(
-            $categoriesFromProductData
+        $categoriesData = $productData['categories'];
+        unset($productData['categories']);
+
+        $this->serializer->denormalize(
+            $productData,
+            Product::class,
+            null,
+            [AbstractNormalizer::OBJECT_TO_POPULATE => $product]
         );
 
-        $categoriesFromRepository = $this->productService->getCategoriesFromRepository($categoriesIds);
+        if (isset($categoriesData)) {
+            $categoriesIds = $this->getCategoriesIdsFromProductData($categoriesData);
 
-        if (!$this->productService->allCategoriesFromProductDataAreValid($categoriesIds, $categoriesFromRepository)) {
-            throw new InvalidCategoryException();
+            $this->productCategoryService->editCategories($product, $categoriesIds);
         }
 
-        return $categoriesFromRepository;
+        return $product;
     }
 
     /**
@@ -73,10 +107,57 @@ class ArrayProductDenormalizer
      */
     private function allAttributesAreSet(array $productData): bool
     {
-        return isset(
-            $productData['name'],
-            $productData['description'],
-            $productData['categories']
-        );
+        foreach (self::REQUIRED_FIELDS as $required_field) {
+            if (!isset($productData[$required_field])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param array $categoriesFromProductData {id: int}
+     * @return ProductCategory[]
+     * @throws InvalidCategoryException
+     */
+    private function getValidCategories(array $categoriesFromProductData): array
+    {
+        $categoriesIds = $this->getCategoriesIdsFromProductData($categoriesFromProductData);
+
+        $categoriesFromRepository = $this->productCategoryRepository->findByIds($categoriesIds);
+
+        if (!$this->allCategoriesFromProductDataAreValid($categoriesIds, $categoriesFromRepository)) {
+            throw new InvalidCategoryException();
+        }
+
+        return $categoriesFromRepository;
+    }
+
+    /**
+     * @param int[] $categoriesIdsFromProductData
+     * @param ProductCategory[] $categoriesFromRepository
+     * @return bool
+     */
+    private function allCategoriesFromProductDataAreValid(
+        array $categoriesIdsFromProductData,
+        array $categoriesFromRepository
+    ): bool
+    {
+        return count($categoriesIdsFromProductData) === count($categoriesFromRepository);
+    }
+
+    /**
+     * @param array $categories {id: int}
+     * @return int[]
+     */
+    private function getCategoriesIdsFromProductData(array $categories): array
+    {
+        $categoriesIds = [];
+        foreach ($categories as $category) {
+            $categoriesIds = $category['id'];
+        }
+
+        return $categoriesIds;
     }
 }

@@ -8,6 +8,8 @@ use App\Exception\MissingAttributeException;
 use App\Service\ArrayProductDenormalizer;
 use App\Service\ProductService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
@@ -42,7 +44,7 @@ class ProductApiController extends AbstractController
             if (!$products = $this->productService->findAll()) {
                 return $this->json(['NOT FOUND' => Response::HTTP_NOT_FOUND], Response::HTTP_NOT_FOUND);
             }
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             return $this->json(
                 ['INTERNAL SERVER ERROR' => Response::HTTP_INTERNAL_SERVER_ERROR],
                 Response::HTTP_INTERNAL_SERVER_ERROR
@@ -73,7 +75,7 @@ class ProductApiController extends AbstractController
                 'json',
                 ['groups' => 'item']
             );
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             return $this->json(
                 ['INTERNAL SERVER ERROR' => Response::HTTP_INTERNAL_SERVER_ERROR],
                 Response::HTTP_INTERNAL_SERVER_ERROR
@@ -91,23 +93,23 @@ class ProductApiController extends AbstractController
         try {
             $requestArray = $request->toArray();
 
-            $this->productService->add($this->arrayProductDenormalizer->execute($requestArray));
-        } catch (MissingAttributeException $e) {
+            $this->productService->add($this->arrayProductDenormalizer->execute($requestArray, null));
+        } catch (MissingAttributeException $exception) {
             return $this->json(
                 ['MISSING ATTRIBUTE' => Response::HTTP_BAD_REQUEST],
                 Response::HTTP_BAD_REQUEST
             );
-        } catch (InvalidCategoryException $e) {
+        } catch (InvalidCategoryException $exception) {
             return $this->json(
                 ['ASSIGNED INVALID CATEGORY' => Response::HTTP_BAD_REQUEST],
                 Response::HTTP_BAD_REQUEST
             );
-        } catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException $exception) {
             return $this->json(
-                ['INVALID ARGUMENTS: ' . $e->getMessage() => Response::HTTP_BAD_REQUEST],
+                ['INVALID ARGUMENTS: ' . $exception->getMessage() => Response::HTTP_BAD_REQUEST],
                 Response::HTTP_BAD_REQUEST
             );
-        } catch (\Exception|ExceptionInterface $e) {
+        } catch (\Exception|ExceptionInterface $exception) {
             return $this->json(
                 ['INTERNAL SERVER ERROR' => Response::HTTP_INTERNAL_SERVER_ERROR],
                 Response::HTTP_INTERNAL_SERVER_ERROR
@@ -130,17 +132,17 @@ class ProductApiController extends AbstractController
             $requestArray = $request->toArray();
 
             $this->productService->edit($product, $requestArray);
-        } catch (InvalidCategoryException $e) {
+        } catch (InvalidCategoryException $exception) {
             return $this->json(
                 ['ASSIGNED INVALID CATEGORY' => Response::HTTP_BAD_REQUEST],
                 Response::HTTP_BAD_REQUEST
             );
-        } catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException $exception) {
             return $this->json(
-                ['INVALID ARGUMENTS: ' . $e->getMessage() => Response::HTTP_BAD_REQUEST],
+                ['INVALID ARGUMENTS: ' . $exception->getMessage() => Response::HTTP_BAD_REQUEST],
                 Response::HTTP_BAD_REQUEST
             );
-        } catch (\Exception|ExceptionInterface $e) {
+        } catch (\Exception|ExceptionInterface $exception) {
             return $this->json(
                 ['INTERNAL SERVER ERROR' => Response::HTTP_INTERNAL_SERVER_ERROR],
                 Response::HTTP_INTERNAL_SERVER_ERROR
@@ -156,7 +158,7 @@ class ProductApiController extends AbstractController
     public function delete(Request $request, int $id): Response
     {
         try {
-            if (!$this->isCsrfTokenValid('delete' . $id, $request->request->get('_token'))) {
+            if (!$this->isCsrfTokenValid('delete' . $id, $request->get('_token'))) {
                 return $this->json(['FORBIDDEN' => Response::HTTP_FORBIDDEN], Response::HTTP_FORBIDDEN);
             }
 
@@ -165,7 +167,9 @@ class ProductApiController extends AbstractController
             }
 
             $this->productService->delete($product);
-        } catch (\Exception $e) {
+        } catch (FileNotFoundException | IOException $exception) {
+            return $this->json(['IMAGES NOT FOUND' => Response::HTTP_NOT_FOUND], Response::HTTP_NOT_FOUND);
+        } catch (\Exception $exception) {
             return $this->json(
                 ['INTERNAL SERVER ERROR' => Response::HTTP_INTERNAL_SERVER_ERROR],
                 Response::HTTP_INTERNAL_SERVER_ERROR

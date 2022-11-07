@@ -1,0 +1,15 @@
+{{ form_start(deleting_images_form) }}
+<div class="form">
+    {% if deleting_images_form.images_to_delete is not empty %}
+        {{ form_label(deleting_images_form.images_to_delete) }}
+    {% endif %}
+
+    <div class="mb-3">
+        {{ form_widget(deleting_images_form.images_to_delete) }}
+    </div>
+
+    {% if deleting_images_form.images_to_delete is not empty %}
+        <button class="btn btn-danger">{{ button_label|default('Delete images') }}</button>
+    {% endif %}
+</div>
+{{ form_end(deleting_images_form) }}

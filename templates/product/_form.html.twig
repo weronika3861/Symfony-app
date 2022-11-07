@@ -13,6 +13,10 @@
             {{ form_widget(form.categories) }}
         </div>
         <div class="col-md-4 mb-3">
+            {{ form_label(form.new_images) }}
+            {{ form_widget(form.new_images) }}
+        </div>
+        <div class="col-md-4 mb-3">
             <button class="btn btn-primary">{{ button_label|default('Save') }}</button>
         </div>
     </div>
