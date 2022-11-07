@@ -207,7 +207,7 @@ class ProductController extends AbstractController
         } catch (\Exception | ExceptionInterface $exception) {
             $this->addFlash(
                 'erorr',
-                'Choosing an image failed.' . $exception->getMessage() . $exception->getTraceAsString()
+                'Choosing an image failed.'
             );
 
             return $this->redirectToRoute('product_index');
