@@ -158,7 +158,7 @@ class ProductController extends AbstractController
     public function delete(Request $request, Product $product): Response
     {
         try {
-            if (!$this->isCsrfTokenValid('delete' . $product->getId(), $request->get('_token'))) {
+            if ($this->isCsrfTokenValid('delete' . $product->getId(), $request->get('_token'))) {
                 $this->productService->delete($product);
 
                 $this->addFlash('success', 'Product deleted.');
