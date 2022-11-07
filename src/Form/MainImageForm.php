@@ -17,7 +17,10 @@ class MainImageForm
                 'choices' => $images,
                 'choice_label' => 'filename',
                 'multiple' => false,
-                'expanded' => true
+                'expanded' => true,
+                'label_attr' => [
+                    'class' => 'radio-custom',
+                ],
             ])
             ->getForm()
         ;

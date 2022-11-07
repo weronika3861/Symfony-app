@@ -97,7 +97,7 @@ class ProductController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/edit", name="product_edit", methods={"POST"})
+     * @Route("/{id}/edit", name="product_edit", methods={"GET", "POST"})
      */
     public function edit(Request $request, Product $product): Response
     {
@@ -207,7 +207,7 @@ class ProductController extends AbstractController
         } catch (\Exception | ExceptionInterface $exception) {
             $this->addFlash(
                 'erorr',
-                'Choosing an image failed.'
+                'Choosing an image failed.' . $exception->getMessage() . $exception->getTraceAsString()
             );
 
             return $this->redirectToRoute('product_index');

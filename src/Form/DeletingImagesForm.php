@@ -13,11 +13,14 @@ class DeletingImagesForm
     {
         return $builder
             ->add('images_to_delete', ChoiceType::class, [
-                'label' => 'choose images to delete',
+                'label' => 'Choose images to delete',
                 'choices' => $images,
                 'choice_label' => 'filename',
                 'multiple' => true,
-                'expanded' => true
+                'expanded' => true,
+                'label_attr' => [
+                    'class' => 'checkbox-custom',
+                ]
             ])
             ->getForm()
         ;
