@@ -158,7 +158,7 @@ class Product
      */
     public function getImages(): Collection
     {
-        return $this->categories;
+        return $this->images;
     }
 
     /**

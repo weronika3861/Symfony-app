@@ -8,6 +8,7 @@ use App\Exception\InvalidCategoryException;
 use App\Exception\MissingAttributeException;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\Exception\ORMException;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 
 class ProductEditor
 {
@@ -31,6 +32,7 @@ class ProductEditor
      * @throws ORMException
      * @throws InvalidCategoryException
      * @throws MissingAttributeException
+     * @throws ExceptionInterface
      */
     public function execute(Product $product, array $productData): void
     {
